@@ -26,8 +26,8 @@ apiToken = ''
 services = []
 # User can add what changes to make or use -c argument
 # reference: https://api-reference.pagerduty.com/#!/Services/put_services_id
-#changes = 'alert_creation:create_alerts_and_incidents'
-changes = 'acknowledgement_timeout:60'
+changes = 'alert_creation:create_alerts_and_incidents'
+#changes = 'acknowledgement_timeout:60'
 url = 'https://api.pagerduty.com/services/'
 ### ^ Initialize required variables
 
