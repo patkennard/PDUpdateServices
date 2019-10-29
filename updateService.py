@@ -2,7 +2,6 @@
 import requests
 import csv
 import argparse
-from config import *
 
 ### from internets, for arguments
 parser = argparse.ArgumentParser()
