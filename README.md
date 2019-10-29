@@ -30,3 +30,4 @@ First, have python 3 installed. Then:
       but can be overridden with -c argument to something like 'acknowledgement_timeout:1'
 
     You can find or add a new API Token by following these instructions https://support.pagerduty.com/docs/generating-api-keys
+    You can find Service Features to change under Request Schema https://api-reference.pagerduty.com/#!/Services/put_services_id 
