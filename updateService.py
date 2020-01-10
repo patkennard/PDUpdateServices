@@ -19,6 +19,7 @@ apiToken = ''
 # or can add a csv file as an argument to the Script
 services = []
 # User can add what changes to make or use -c argument
+serviceNames = []
 # reference: https://api-reference.pagerduty.com/#!/Services/put_services_id
 changes = 'alert_creation:create_alerts_and_incidents'
 #changes = 'acknowledgement_timeout:60'
@@ -73,23 +74,48 @@ def extract_values(obj, key):
     results = extract(obj, arr, key)
     return results
 
+# Function for a Yes/No result based on the answer provided as an arguement
+def yes_no(answer):
+    yes = set(['yes','y', 'ye', ''])
+    no = set(['no','n'])
+
+    while True:
+        choice = input(answer).lower()
+        if choice in yes:
+           return True
+        elif choice in no:
+           return False
+        else:
+           print ("Please respond with 'yes' or 'no'")
+
 ### This is from experiments.py
 responseJson = requests.get(url, headers=headers).json()
+print('\nCurrent service settings: ')
 for s in responseJson['services']:
-    print(s['id'] + " : " + s['name'] + " -> " + s['alert_creation'] + " , " + str(s['acknowledgement_timeout'])  + " , " + str(s['auto_resolve_timeout']))
-    if s['alert_creation'] == 'create_incidents':
+    ### Previously printed a few interesting settings, not print only change to be made
+    #print(s['id'] + " : " + s['name'] + " -> " + s['alert_creation'] + " , " + str(s['acknowledgement_timeout'])  + " , " + str(s['auto_resolve_timeout']))
+    print(s['id'] + " : " + s['name'] + " -> " + str(changes.split(':')[0]) + " = " + str(s[changes.split(':')[0]]))
+    if str(s[changes.split(':')[0]]) != str(changes.split(':')[1]):
         services.append(str(s['id']))
-print services
+        serviceNames.append(str(s['name']))
+print ('\nMaking changes to these services: ')
+for (s, n) in zip(services, serviceNames):
+    print(s + " -> " +n)
+if not yes_no('\nContinue? '):
+    exit()
+else:
+    print ('\n')
 ### ^^^ This is from experiments.py
 # iterate through the service ids and send out api request to update service
 try:
-    for s in services:
-        print('Updating service id: '+s)
+    for (s, n) in zip(services, serviceNames):
+        print('Updating service id: '+s + " -> " +n)
         # send API  request
         if not debug:
             r = requests.put(url+s, data=changes, headers=headers)
             # print some details for troubleshooting and to confirm success
             print('Status Code: {code}'.format(code=r.status_code))
-            print('Changed ' + str(extract_values(r.json(), 'name')) + ' ' + changes.split(':')[0] + ' to ' + str(extract_values(r.json(), changes.split(':')[0])) + '\n\n')
+            print('Changed ' + str(extract_values(r.json(), 'name')) + ' ' + changes.split(':')[0] + ' to ' + str(extract_values(r.json(), changes.split(':')[0])))
+            print('-----------------------------------------------\n')
 except Exception as e:
     print(e)
