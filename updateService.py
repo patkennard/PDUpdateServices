@@ -7,6 +7,7 @@ from collections import OrderedDict
 parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--api', help="pagerduty api token")
 parser.add_argument('-f', '--file', help="csv filename with Services Name and Services Obfuscated ID fields")
+parser.add_argument('-o', '--object', help="object to change. eg service, escalation policy, etc")
 parser.add_argument('-c', '--change', help="change to service 'feature:setting', eg 'alert_creation:create_incidents' or 'acknowledgement_timeout:1'")
 parser.add_argument('-d', '--debug', dest='debug', action='store_true')
 args = parser.parse_args()
@@ -23,8 +24,9 @@ serviceNames = []
 # reference: https://api-reference.pagerduty.com/#!/Services/put_services_id
 changes = 'alert_creation:create_alerts_and_incidents'
 #changes = 'acknowledgement_timeout:60'
-url = 'https://api.pagerduty.com/services/'
+object = ''
 ### ^ Initialize required variables
+
 
 # Check that we have all of the required variables, if not then exit()
 if not args.api and not apiToken:
@@ -53,6 +55,12 @@ if args.file:
             data[header] = [value]
 
     services = data['Services Obfuscated ID']
+
+if args.object:
+    print (args.object)
+    object = args.object
+else:
+    object = 'services'
 
 def extract_values(obj, key):
     """Pull all values of specified key from nested JSON."""
@@ -88,10 +96,12 @@ def yes_no(answer):
         else:
            print ("Please respond with 'yes' or 'no'")
 
+url = 'https://api.pagerduty.com/'+object+'/'
+print (url)
 ### This is from experiments.py
 responseJson = requests.get(url, headers=headers).json()
 print('\nCurrent service settings: ')
-for s in responseJson['services']:
+for s in responseJson[object]:
     ### Previously printed a few interesting settings, not print only change to be made
     #print(s['id'] + " : " + s['name'] + " -> " + s['alert_creation'] + " , " + str(s['acknowledgement_timeout'])  + " , " + str(s['auto_resolve_timeout']))
     print(s['id'] + " : " + s['name'] + " -> " + str(changes.split(':')[0]) + " = " + str(s[changes.split(':')[0]]))
@@ -113,6 +123,9 @@ try:
         # send API  request
         if not debug:
             r = requests.put(url+s, data=changes, headers=headers)
+
+
+
             # print some details for troubleshooting and to confirm success
             print('Status Code: {code}'.format(code=r.status_code))
             print('Changed ' + str(extract_values(r.json(), 'name')) + ' ' + changes.split(':')[0] + ' to ' + str(extract_values(r.json(), changes.split(':')[0])))

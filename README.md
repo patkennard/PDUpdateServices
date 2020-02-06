@@ -12,17 +12,19 @@ First, have python 3 installed. Then:
 
 ## Usage
 
-    ./updateService.py -a API_Token -f CSV_File -c Change_to_Make > output.txt
+    ./updateService.py -a API_Token -f CSV_File -o service -c Change_to_Make > output.txt
 
     optional arguments:
     -h, --help            show this help message and exit
     -a API, --api API     pagerduty api token
     -f FILE, --file FILE  csv filename with Services Name and Services
-                        Obfuscated ID fields
+                          Obfuscated ID fields
+    -o Object, --object   The PD object to be modified, defaults to Service, eg
+                          'service' or 'escalation_policy'
     -c CHANGE, --change CHANGE
-                        change to service 'feature:setting', eg
-                        'alert_creation:create_incidents' or
-                        'acknowledgement_timeout:10'
+                          change to service 'feature:setting', eg
+                          'alert_creation:create_incidents' or
+                          'acknowledgement_timeout:10'
 
     API_Token can be hardcoded to line 23 of updateService.py
     Service IDs can be hardcoded to line 26 of updateService.py instead of CSV_File
